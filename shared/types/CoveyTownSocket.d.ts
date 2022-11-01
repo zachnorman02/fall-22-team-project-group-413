@@ -67,6 +67,7 @@ export interface ViewingArea {
   video?: string;
   isPlaying: boolean;
   elapsedTimeSec: number;
+  pollManager?: BinaryPollManager;
 }
 
 export interface ServerToClientEvents {
