@@ -85,3 +85,13 @@ export interface ClientToServerEvents {
   playerMovement: (movementData: PlayerLocation) => void;
   interactableUpdate: (update: Interactable) => void;
 }
+
+export type PollingOption = string;
+export type PollingOptionVotes = { option: PollingOption, votes: number}
+export interface BinaryPollManager {
+  title?: string;
+  isActive: boolean;
+  duration: number;
+  votes: PollingOptionVotes[];
+  interactableID: string;
+}
