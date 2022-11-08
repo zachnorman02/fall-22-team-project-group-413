@@ -59,7 +59,6 @@ export default class BinaryPollManagerController extends (EventEmitter as new ()
         this._time = newTime;
     }
 
-
     get question() {
         return this._question;
     }
