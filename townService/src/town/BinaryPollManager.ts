@@ -8,6 +8,8 @@ export default class BinaryPollManager {
 
   private _duration: number;
 
+  private _elapsedTimeSec: number;
+
   private _votes: PollingOptionVotes[];
 
   private _interactableID: string;
@@ -37,10 +39,18 @@ export default class BinaryPollManager {
    *
    * @param binaryPollManager model containing this area's starting state
    */
-  public constructor({ title, isActive, duration, votes, interactableID }: BinaryPollModel) {
+  public constructor({
+    title,
+    isActive,
+    duration,
+    elapsedTimeSec,
+    votes,
+    interactableID,
+  }: BinaryPollModel) {
     this._title = title;
     this._isActive = isActive;
     this._duration = duration;
+    this._elapsedTimeSec = elapsedTimeSec;
     this._votes = votes;
     this._interactableID = interactableID;
   }
@@ -66,6 +76,7 @@ export default class BinaryPollManager {
       title: this._title,
       isActive: this._isActive,
       duration: this._duration,
+      elapsedTimeSec: this._elapsedTimeSec,
       votes: this._votes,
       interactableID: this._interactableID,
     };
