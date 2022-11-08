@@ -54,6 +54,7 @@ export interface ConversationArea {
   id: string;
   topic?: string;
   occupantsByID: string[];
+  pollManager?: BinaryPollManager;
 };
 export interface BoundingBox {
   x: number;
