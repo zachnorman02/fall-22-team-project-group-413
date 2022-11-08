@@ -26,6 +26,8 @@ export default abstract class InteractableArea {
   /* An emitter that can be used to broadcast messages to all players in this town */
   private _townEmitter: TownEmitter;
 
+  protected _pollManager: BinaryPollManager;
+
   public get id() {
     return this._id;
   }
@@ -40,6 +42,10 @@ export default abstract class InteractableArea {
 
   public get boundingBox(): BoundingBox {
     return { x: this._x, y: this._y, width: this._width, height: this._height };
+  }
+
+  public get pollManager(): BinaryPollManager {
+    return this._pollManager;
   }
 
   /**

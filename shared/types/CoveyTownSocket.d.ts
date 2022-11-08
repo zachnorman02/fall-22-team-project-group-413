@@ -54,6 +54,7 @@ export interface ConversationArea {
   id: string;
   topic?: string;
   occupantsByID: string[];
+  pollManager?: BinaryPollManager;
 };
 export interface BoundingBox {
   x: number;
@@ -67,6 +68,7 @@ export interface ViewingArea {
   video?: string;
   isPlaying: boolean;
   elapsedTimeSec: number;
+  pollManager?: BinaryPollManager;
 }
 
 export interface ServerToClientEvents {
