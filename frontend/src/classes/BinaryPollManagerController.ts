@@ -38,14 +38,27 @@ export default class BinaryPollManagerController extends (EventEmitter as new ()
     get active() {
         return this._isActive;
     }
+  
+    set active(newActive: boolean) {
+         this._isActive = newActive;
+    }
 
     get results() {
         return this._results;
+    }
+  
+    set results(newResults: Map<string, number>) {
+        this._results = newResults;
     }
 
     get time() {
         return this._time;
     }
+  
+    set time(newTime: number) {
+        this._time = newTime;
+    }
+
 
     get question() {
         return this._question;
@@ -54,19 +67,7 @@ export default class BinaryPollManagerController extends (EventEmitter as new ()
     get currentTime() {
         return this._currTime;
     }
-
-    set active(newActive: boolean) {
-         this._isActive = newActive;
-    }
-
-    set results(newResults: Map<string, number>) {
-        this._results = newResults;
-    }
-
-    set time(newTime: number) {
-        this._time = newTime;
-    }
-
+  
     set currentTime(newCurrTime: number) {
         this._currTime = newCurrTime;
     }
