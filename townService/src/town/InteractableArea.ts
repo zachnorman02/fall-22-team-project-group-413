@@ -44,7 +44,7 @@ export default abstract class InteractableArea {
     return { x: this._x, y: this._y, width: this._width, height: this._height };
   }
 
-  public getPollManager(): BinaryPollManager {
+  public get pollManager(): BinaryPollManager {
     return this._pollManager;
   }
 
