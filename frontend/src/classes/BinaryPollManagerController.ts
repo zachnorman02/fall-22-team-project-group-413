@@ -72,9 +72,9 @@ export default class BinaryPollManagerController extends (EventEmitter as new ()
     }
 
 
-// static fromBinaryPollManagerModel(model: BinaryPollManagerModel): BinaryPollModel
+// static fromBinaryPollManagerModel(model: BinaryPollManagerModel): BinaryPollManagerController
 
-// static toBinaryPollManagerModel()
+// static toBinaryPollManagerModel(): BinaryPollManagerModel
 
 // export function usePollManagerResults(poll: BinaryPollManagerController): Map<string,number>
 
