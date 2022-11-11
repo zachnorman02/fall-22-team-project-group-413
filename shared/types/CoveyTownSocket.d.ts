@@ -17,7 +17,7 @@ export type TownJoinResponse = {
   interactables: Interactable[];
 }
 
-export type Interactable = ViewingArea | ConversationArea;
+export type Interactable = ViewingArea | ConversationArea | PollingArea;
 
 export type TownSettingsUpdate = {
   friendlyName?: string;
@@ -88,10 +88,11 @@ export interface ClientToServerEvents {
 
 export type PollingOption = string;
 export type PollingOptionVotes = { option: PollingOption, votes: number}
-export interface BinaryPollManager {
+export interface PollingArea {
+  id: string
   title?: string;
   isActive: boolean;
-  duration: number;
-  votes: PollingOptionVotes[];
-  interactableID: string;
+  duration?: number;
+  elapsedTimeSec: number
+  votes?: PollingOptionVotes[];
 }
