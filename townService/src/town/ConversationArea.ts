@@ -57,7 +57,6 @@ export default class ConversationArea extends InteractableArea {
       id: this.id,
       occupantsByID: this.occupantsByID,
       topic: this.topic,
-      pollManager: this._pollManager,
     };
   }
 
