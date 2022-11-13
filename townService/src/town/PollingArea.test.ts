@@ -9,35 +9,21 @@ describe('PollingArea', () => {
   const testAreaBox = { x: 100, y: 100, width: 100, height: 100 };
   let testArea: PollingArea;
   const townEmitter = mock<TownEmitter>();
-  const title = nanoid();
-  const isActive = false;
-  const duration = nanoid();
-  const elapsedTimeSec = nanoid();
-  const votes = [];
-
-  const id = nanoid();
   let newPlayer: Player;
+  const id = nanoid();
+  const isActive = true;
+  const elapsedTimeSec = 10;
+  const title = nanoid();
+  const duration = 140;
+  const votes = [];
 
   beforeEach(() => {
     mockClear(townEmitter);
-    testArea = new PollingArea({id, title, isActive, duration, elapsedTimeSec, votes}, testAreaBox, townEmitter);
+    testArea = new PollingArea({ id, title, isActive, duration, elapsedTimeSec, votes }, testAreaBox, townEmitter);
     newPlayer = new Player(nanoid(), mock<TownEmitter>());
     testArea.add(newPlayer);
   });
-  describe('add', () => {
-    it('Adds the player to the occupants list and emits an interactableUpdate event', () => {
-      expect(testArea.occupantsByID).toEqual([newPlayer.id]);
 
-      const lastEmittedUpdate = getLastEmittedEvent(townEmitter, 'interactableUpdate');
-      // expect(lastEmittedUpdate).toEqual({ topic, id, occupantsByID: [newPlayer.id] });
-    });
-    it("Sets the player's conversationLabel and emits an update for their location", () => {
-      expect(newPlayer.location.interactableID).toEqual(id);
-
-      const lastEmittedMovement = getLastEmittedEvent(townEmitter, 'playerMoved');
-      // expect(lastEmittedMovement.location.interactableID).toEqual(id);
-    });
-  });
   describe('remove', () => {
     it('Removes the player from the list of occupants and emits an interactableUpdate event', () => {
       // Add another player so that we are not also testing what happens when the last player leaves
@@ -45,54 +31,78 @@ describe('PollingArea', () => {
       testArea.add(extraPlayer);
       testArea.remove(newPlayer);
 
-      // expect(testArea.occupantsByID).toEqual([extraPlayer.id]);
+      expect(testArea.occupantsByID).toEqual([extraPlayer.id]);
       const lastEmittedUpdate = getLastEmittedEvent(townEmitter, 'interactableUpdate');
-      // expect(lastEmittedUpdate).toEqual({ topic, id, occupantsByID: [extraPlayer.id] });
+      expect(lastEmittedUpdate).toEqual({ id, title, isActive, duration, elapsedTimeSec, votes });
     });
     it("Clears the player's conversationLabel and emits an update for their location", () => {
       testArea.remove(newPlayer);
-      // expect(newPlayer.location.interactableID).toBeUndefined();
+      expect(newPlayer.location.interactableID).toBeUndefined();
       const lastEmittedMovement = getLastEmittedEvent(townEmitter, 'playerMoved');
-      // expect(lastEmittedMovement.location.interactableID).toBeUndefined();
+      expect(lastEmittedMovement.location.interactableID).toBeUndefined();
     });
-    it('Clears the topic of the conversation area when the last occupant leaves', () => {
-      testArea.remove(newPlayer);
-      const lastEmittedUpdate = getLastEmittedEvent(townEmitter, 'interactableUpdate');
-      // expect(lastEmittedUpdate).toEqual({ topic: undefined, id, occupantsByID: [] });
-      // expect(testArea.topic).toBeUndefined();
+    // TODO: what happens when last player leaves
+    // it('Clears the video property when the last occupant leaves', () => {
+    //   testArea.remove(newPlayer);
+    //   const lastEmittedUpdate = getLastEmittedEvent(townEmitter, 'interactableUpdate');
+    //   expect(lastEmittedUpdate).toEqual({ id, isPlaying, elapsedTimeSec, video: undefined });
+    //   expect(testArea.video).toBeUndefined();
+    // });
+  });
+  describe('add', () => {
+    it('Adds the player to the occupants list', () => {
+      expect(testArea.occupantsByID).toEqual([newPlayer.id]);
+    });
+    it("Sets the player's conversationLabel and emits an update for their location", () => {
+      expect(newPlayer.location.interactableID).toEqual(id);
+
+      const lastEmittedMovement = getLastEmittedEvent(townEmitter, 'playerMoved');
+      expect(lastEmittedMovement.location.interactableID).toEqual(id);
     });
   });
-  test('toModel sets the ID, topic and occupantsByID and sets no other properties', () => {
+  test('toModel sets the ID, video, isPlaying and elapsedTimeSec', () => {
     const model = testArea.toModel();
-    // expect(model).toEqual({
-    //   id,
-    //   topic,
-    //   occupantsByID: [newPlayer.id],
-    // });
+    expect(model).toEqual({
+      id, 
+      title, 
+      isActive, 
+      duration, 
+      elapsedTimeSec, 
+      votes
+    });
+  });
+  test('updateModel sets video, isPlaying and elapsedTimeSec', () => {
+    testArea.updateModel({ id: 'ignore', title: 'test2', isActive: false, duration: 200, elapsedTimeSec: 150, votes: []});
+    expect(testArea.isActive).toBe(false);
+    expect(testArea.id).toBe(id);
+    expect(testArea.elapsedTimeSec).toBe(150);
+    expect(testArea.title).toBe('test2');
   });
   describe('fromMapObject', () => {
     it('Throws an error if the width or height are missing', () => {
-    //   expect(() =>
-    //     ConversationArea.fromMapObject(
-    //       { id: 1, name: nanoid(), visible: true, x: 0, y: 0 },
-    //       townEmitter,
-    //     ),
-    //   ).toThrowError();
+      expect(() =>
+        PollingArea.fromMapObject(
+          { id: 1, name: nanoid(), visible: true, x: 0, y: 0 },
+          townEmitter,
+        ),
+      ).toThrowError();
     });
-    it('Creates a new conversation area using the provided boundingBox and id, with an empty occupants list', () => {
+    it('Creates a new viewing area using the provided boundingBox and id, with isPlaying defaulting to false and progress to 0, and emitter', () => {
       const x = 30;
       const y = 20;
       const width = 10;
       const height = 20;
       const name = 'name';
-      const val = ConversationArea.fromMapObject(
+      const val = PollingArea.fromMapObject(
         { x, y, width, height, name, id: 10, visible: true },
         townEmitter,
       );
-    //   expect(val.boundingBox).toEqual({ x, y, width, height });
-    //   expect(val.id).toEqual(name);
-    //   expect(val.topic).toBeUndefined();
-    //   expect(val.occupantsByID).toEqual([]);
+      expect(val.boundingBox).toEqual({ x, y, width, height });
+      expect(val.id).toEqual(name);
+      expect(val.isActive).toEqual(false);
+      expect(val.elapsedTimeSec).toEqual(0);
+      expect(val.title).toBeUndefined();
+      expect(val.occupantsByID).toEqual([]);
     });
   });
 });
