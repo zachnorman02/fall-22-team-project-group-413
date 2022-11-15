@@ -75,6 +75,10 @@ export default class BinaryPollManagerController extends (EventEmitter as new ()
     return this._question;
   }
 
+  set question(newQuestion: string | undefined) {
+    this._question = newQuestion;
+  }
+
   get currentTime(): number {
     return this._currTime;
   }
@@ -100,6 +104,14 @@ export default class BinaryPollManagerController extends (EventEmitter as new ()
       id: this.id,
     };
   }
+
+  public updateFrom(model: PollAreaModel): void {
+    this.active = model.isActive;
+    this.results = model.votes;
+    this.currentTime = model.elapsedTimeSec;
+    this.time = model.duration;
+    this.question = model.title;
+  }
 }
 
 export function usePollManagerResults(poll: BinaryPollManagerController): PollingOptionVotes[] {
@@ -121,7 +133,7 @@ export function usePollManagerCurrentTime(poll: BinaryPollManagerController): nu
       poll.removeListener('timeChange', setTime);
     };
   }, [poll]);
-  return time || 0;
+  return time;
 }
 
 export function usePollManagerCurrentTimeLimit(poll: BinaryPollManagerController): number {
