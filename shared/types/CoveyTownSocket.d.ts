@@ -17,7 +17,7 @@ export type TownJoinResponse = {
   interactables: Interactable[];
 }
 
-export type Interactable = ViewingArea | ConversationArea;
+export type Interactable = ViewingArea | ConversationArea | PollingArea;
 
 export type TownSettingsUpdate = {
   friendlyName?: string;
@@ -84,4 +84,15 @@ export interface ClientToServerEvents {
   chatMessage: (message: ChatMessage) => void;
   playerMovement: (movementData: PlayerLocation) => void;
   interactableUpdate: (update: Interactable) => void;
+}
+
+export type PollingOption = string;
+export type PollingOptionVotes = { option: PollingOption, votes: number}
+export interface PollingArea {
+  id: string
+  title?: string;
+  isActive: boolean;
+  duration?: number;
+  elapsedTimeSec: number
+  votes?: PollingOptionVotes[];
 }
