@@ -15,8 +15,10 @@ import {
   PlayerLocation,
   TownSettingsUpdate,
   ViewingArea as ViewingAreaModel,
+  PollingArea as PollingAreaModel,
 } from '../types/CoveyTownSocket';
-import { isConversationArea, isViewingArea } from '../types/TypeUtils';
+import { isConversationArea, isPollingArea, isViewingArea } from '../types/TypeUtils';
+import BinaryPollManagerController from './BinaryPollManagerController';
 import ConversationAreaController from './ConversationAreaController';
 import PlayerController from './PlayerController';
 import ViewingAreaController from './ViewingAreaController';
@@ -69,6 +71,11 @@ export type TownEvents = {
    * the town controller's record of viewing areas.
    */
   viewingAreasChanged: (newViewingAreas: ViewingAreaController[]) => void;
+  /**
+   * An event that indicates that the set of polling areas has changed. This event is emitted after updating
+   * the town controller's record of polling areas.
+   */
+  pollingAreasChanged: (newPollingAreas: BinaryPollManagerController[]) => void;
   /**
    * An event that indicates that a new chat message has been received, which is the parameter passed to the listener
    */
@@ -190,6 +197,8 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
 
   private _viewingAreas: ViewingAreaController[] = [];
 
+  private _pollingAreasInternal: BinaryPollManagerController[] = [];
+
   public constructor({ userName, townID, loginController }: ConnectionProperties) {
     super();
     this._townID = townID;
@@ -307,6 +316,15 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
   public set viewingAreas(newViewingAreas: ViewingAreaController[]) {
     this._viewingAreas = newViewingAreas;
     this.emit('viewingAreasChanged', newViewingAreas);
+  }
+
+  public get pollingAreas() {
+    return this._pollingAreasInternal;
+  }
+
+  public set pollingAreas(newPollingAreas: BinaryPollManagerController[]) {
+    this._pollingAreasInternal = newPollingAreas;
+    this.emit('pollingAreasChanged', newPollingAreas);
   }
 
   /**
@@ -427,7 +445,10 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
           eachArea => eachArea.id === interactable.id,
         );
         updatedViewingArea?.updateFrom(interactable);
-      }
+      } /* else if (isPollingArea(interactable)) {
+        const updatedPollingArea = this._pollingAreasInternal.find(p => p.id === interactable.id);
+        updatedPollingArea?.updateFrom(interactable);
+      } */
     });
   }
 
@@ -509,6 +530,17 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
   }
 
   /**
+   * Create a new polling area, sending the request to the townService. Throws an error if the request
+   * is not successful. Does not immediately update local state about the new polling area - it will be
+   * updated once the townService creates the area and emits an interactableUpdate
+   *
+   * @param newArea
+   */
+  async createPollingArea(newArea: PollingAreaModel) {
+    await this._townsService.createPollingArea(this.townID, this.sessionToken, newArea);
+  }
+
+  /**
    * Disconnect from the town, notifying the townService that we are leaving and returning
    * to the login page
    */
@@ -550,7 +582,9 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
             );
           } else if (isViewingArea(eachInteractable)) {
             this._viewingAreas.push(new ViewingAreaController(eachInteractable));
-          }
+          } /* else if (isPollingArea(eachInteractable)) {
+            this._pollingAreasInternal.push(new BinaryPollManagerController(eachInteractable));
+          } */
         });
         this._userID = initialData.userID;
         this._ourPlayer = this.players.find(eachPlayer => eachPlayer.id == this.userID);
