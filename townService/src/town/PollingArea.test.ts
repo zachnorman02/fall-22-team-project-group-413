@@ -45,13 +45,21 @@ describe('PollingArea', () => {
       const lastEmittedMovement = getLastEmittedEvent(townEmitter, 'playerMoved');
       expect(lastEmittedMovement.location.interactableID).toBeUndefined();
     });
-    // TODO: what happens when last player leaves
-    // it('Clears the video property when the last occupant leaves', () => {
-    //   testArea.remove(newPlayer);
-    //   const lastEmittedUpdate = getLastEmittedEvent(townEmitter, 'interactableUpdate');
-    //   expect(lastEmittedUpdate).toEqual({ id, isPlaying, elapsedTimeSec, video: undefined });
-    //   expect(testArea.video).toBeUndefined();
-    // });
+    it('Clears the properties of the poll when the last occupant leaves', () => {
+      testArea.remove(newPlayer);
+      const lastEmittedUpdate = getLastEmittedEvent(townEmitter, 'interactableUpdate');
+      expect(lastEmittedUpdate).toEqual({
+        id,
+        title: undefined,
+        isActive,
+        duration: undefined,
+        elapsedTimeSec,
+        votes: undefined,
+      });
+      expect(testArea.title).toBeUndefined();
+      expect(testArea.duration).toBeUndefined();
+      expect(testArea.votes).toBeUndefined();
+    });
   });
   describe('add', () => {
     it('Adds the player to the occupants list', () => {
@@ -64,7 +72,7 @@ describe('PollingArea', () => {
       expect(lastEmittedMovement.location.interactableID).toEqual(id);
     });
   });
-  test('toModel sets the ID, video, isPlaying and elapsedTimeSec', () => {
+  test('toModel sets the ID, title, isActive and duration, elapsedTimeSec, and votes properties', () => {
     const model = testArea.toModel();
     expect(model).toEqual({
       id,
@@ -75,19 +83,22 @@ describe('PollingArea', () => {
       votes,
     });
   });
-  test('updateModel sets video, isPlaying and elapsedTimeSec', () => {
+  test('updateModel sets id, title, isActive, duration, elapsedTimeSec, and votes', () => {
     testArea.updateModel({
       id: 'ignore',
       title: 'test2',
       isActive: false,
       duration: 200,
       elapsedTimeSec: 150,
-      votes: [],
+      votes: [{ option: 'Yes', votes: 2 }],
     });
     expect(testArea.isActive).toBe(false);
     expect(testArea.id).toBe(id);
     expect(testArea.elapsedTimeSec).toBe(150);
     expect(testArea.title).toBe('test2');
+    expect(testArea.votes?.length).toBe(1);
+    expect(testArea.votes?.[0].option).toBe('Yes');
+    expect(testArea.votes?.[0].votes).toBe(2);
   });
   describe('fromMapObject', () => {
     it('Throws an error if the width or height are missing', () => {
