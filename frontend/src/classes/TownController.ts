@@ -8,6 +8,7 @@ import Interactable from '../components/Town/Interactable';
 import ViewingArea from '../components/Town/interactables/ViewingArea';
 import { LoginController } from '../contexts/LoginControllerContext';
 import { TownsService, TownsServiceClient } from '../generated/client';
+import { PollingArea } from '../generated/client/models/PollingArea';
 import useTownController from '../hooks/useTownController';
 import {
   ChatMessage,
@@ -445,10 +446,10 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
           eachArea => eachArea.id === interactable.id,
         );
         updatedViewingArea?.updateFrom(interactable);
-      } /* else if (isPollingArea(interactable)) {
+      } else if (isPollingArea(interactable)) {
         const updatedPollingArea = this._pollingAreasInternal.find(p => p.id === interactable.id);
         updatedPollingArea?.updateFrom(interactable);
-      } */
+      }
     });
   }
 
@@ -582,9 +583,11 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
             );
           } else if (isViewingArea(eachInteractable)) {
             this._viewingAreas.push(new ViewingAreaController(eachInteractable));
-          } /* else if (isPollingArea(eachInteractable)) {
-            this._pollingAreasInternal.push(new BinaryPollManagerController(eachInteractable));
-          } */
+          } else if (isPollingArea(eachInteractable)) {
+            this._pollingAreasInternal.push(
+              BinaryPollManagerController.fromBinaryPollManagerModel(eachInteractable),
+            );
+          }
         });
         this._userID = initialData.userID;
         this._ourPlayer = this.players.find(eachPlayer => eachPlayer.id == this.userID);
@@ -628,6 +631,38 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
    */
   public emitViewingAreaUpdate(viewingArea: ViewingAreaController) {
     this._socket.emit('interactableUpdate', viewingArea.viewingAreaModel());
+  }
+
+  /**
+   * Retrieve the polling area controller that corresponds to a binaryPollManagerModel, creating one if necessary
+   *
+   * @param pollingArea
+   * @returns
+   */
+  public getBinaryPollManagerController(pollingArea: PollingArea): BinaryPollManagerController {
+    const existingController = this._pollingAreasInternal.find(
+      eachExistingArea => eachExistingArea.id === pollingArea.id,
+    );
+    if (existingController) {
+      return existingController;
+    } else {
+      const newController = new BinaryPollManagerController({
+        id: pollingArea.id,
+        prompt: pollingArea.title,
+        results: pollingArea.votes,
+      });
+      this._pollingAreasInternal.push(newController);
+      return newController;
+    }
+  }
+
+  /**
+   * Emit a polling area update to the townService
+   * @param pollinggArea The Binary Poll Manager Controller that is updated and should be emitted
+   *    with the event
+   */
+  public emitPollingAreaUpdate(pollingArea: BinaryPollManagerController) {
+    this._socket.emit('interactableUpdate', pollingArea.toBinaryPollManagerModel());
   }
 
   /**
@@ -707,6 +742,27 @@ export function useViewingAreaController(viewingAreaID: string): ViewingAreaCont
     throw new Error(`Requested viewing area ${viewingAreaID} does not exist`);
   }
   return viewingArea;
+}
+
+/**
+ * A react hook to retrieve a binary poll manager controller.
+ *
+ * This function will throw an error if the polling area controller does not exist.
+ *
+ * This hook relies on the TownControllerContext.
+ *
+ * @param pollingAreaID The ID of the viewing area to retrieve the controller for
+ *
+ * @throws Error if there is no polling area controller matching the specifeid ID
+ */
+export function useBinaryPollManagerController(pollingAreaID: string): BinaryPollManagerController {
+  const townController = useTownController();
+
+  const pollingArea = townController.pollingAreas.find(eachArea => eachArea.id == pollingAreaID);
+  if (!pollingArea) {
+    throw new Error(`Requested polling area ${pollingAreaID} does not exist`);
+  }
+  return pollingArea;
 }
 
 /**
