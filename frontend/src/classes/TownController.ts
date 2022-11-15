@@ -6,9 +6,9 @@ import { io } from 'socket.io-client';
 import TypedEmitter from 'typed-emitter';
 import Interactable from '../components/Town/Interactable';
 import ViewingArea from '../components/Town/interactables/ViewingArea';
+import PollingArea from '../components/Town/interactables/PollingArea';
 import { LoginController } from '../contexts/LoginControllerContext';
 import { TownsService, TownsServiceClient } from '../generated/client';
-import { PollingArea } from '../generated/client/models/PollingArea';
 import useTownController from '../hooks/useTownController';
 import {
   ChatMessage,
@@ -646,11 +646,7 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
     if (existingController) {
       return existingController;
     } else {
-      const newController = new BinaryPollManagerController({
-        id: pollingArea.id,
-        prompt: pollingArea.title,
-        results: pollingArea.votes,
-      });
+      const newController = new BinaryPollManagerController(pollingArea.id);
       this._pollingAreasInternal.push(newController);
       return newController;
     }
