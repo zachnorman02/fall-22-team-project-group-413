@@ -10,7 +10,7 @@ import InteractableArea from './InteractableArea';
 
 export default class PollingArea extends InteractableArea {
   /* The title/question of the poll, or undefined if it is not set */
-  private _title?: string;
+  private _title?: string | undefined;
 
   private _isActive: boolean;
 

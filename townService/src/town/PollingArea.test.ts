@@ -2,7 +2,7 @@ import { mock, mockClear } from 'jest-mock-extended';
 import { nanoid } from 'nanoid';
 import Player from '../lib/Player';
 import { getLastEmittedEvent } from '../TestUtils';
-import { TownEmitter } from '../types/CoveyTownSocket';
+import { PollingOptionVotes, TownEmitter } from '../types/CoveyTownSocket';
 import PollingArea from './PollingArea';
 
 describe('PollingArea', () => {
@@ -15,11 +15,15 @@ describe('PollingArea', () => {
   const elapsedTimeSec = 10;
   const title = nanoid();
   const duration = 140;
-  const votes = [];
+  const votes: PollingOptionVotes[] = [];
 
   beforeEach(() => {
     mockClear(townEmitter);
-    testArea = new PollingArea({ id, title, isActive, duration, elapsedTimeSec, votes }, testAreaBox, townEmitter);
+    testArea = new PollingArea(
+      { id, title, isActive, duration, elapsedTimeSec, votes },
+      testAreaBox,
+      townEmitter,
+    );
     newPlayer = new Player(nanoid(), mock<TownEmitter>());
     testArea.add(newPlayer);
   });
@@ -63,16 +67,23 @@ describe('PollingArea', () => {
   test('toModel sets the ID, video, isPlaying and elapsedTimeSec', () => {
     const model = testArea.toModel();
     expect(model).toEqual({
-      id, 
-      title, 
-      isActive, 
-      duration, 
-      elapsedTimeSec, 
-      votes
+      id,
+      title,
+      isActive,
+      duration,
+      elapsedTimeSec,
+      votes,
     });
   });
   test('updateModel sets video, isPlaying and elapsedTimeSec', () => {
-    testArea.updateModel({ id: 'ignore', title: 'test2', isActive: false, duration: 200, elapsedTimeSec: 150, votes: []});
+    testArea.updateModel({
+      id: 'ignore',
+      title: 'test2',
+      isActive: false,
+      duration: 200,
+      elapsedTimeSec: 150,
+      votes: [],
+    });
     expect(testArea.isActive).toBe(false);
     expect(testArea.id).toBe(id);
     expect(testArea.elapsedTimeSec).toBe(150);
