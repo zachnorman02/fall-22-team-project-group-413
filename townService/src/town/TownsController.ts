@@ -22,6 +22,7 @@ import {
   CoveyTownSocket,
   TownSettingsUpdate,
   ViewingArea,
+  PollingArea,
 } from '../types/CoveyTownSocket';
 
 /**
@@ -156,6 +157,37 @@ export class TownsController extends Controller {
       throw new InvalidParametersError('Invalid values specified');
     }
     const success = town.addViewingArea(requestBody);
+    if (!success) {
+      throw new InvalidParametersError('Invalid values specified');
+    }
+  }
+
+  /**
+   * Creates a polling area in a given town
+   *
+   * @param townID ID of the town in which to create the new polling area
+   * @param sessionToken session token of the player making the request, must
+   *        match the session token returned when the player joined the town
+   * @param requestBody The new polling area to create
+   *
+   * @throws InvalidParametersError if the session token is not valid, or if the
+   *          polling area could not be created
+   */
+  @Post('{townID}/pollingArea')
+  @Response<InvalidParametersError>(400, 'Invalid values specified')
+  public async createPollingArea(
+    @Path() townID: string,
+    @Header('X-Session-Token') sessionToken: string,
+    @Body() requestBody: PollingArea,
+  ): Promise<void> {
+    const town = this._townsStore.getTownByID(townID);
+    if (!town) {
+      throw new InvalidParametersError('Invalid values specified');
+    }
+    if (!town?.getPlayerBySessionToken(sessionToken)) {
+      throw new InvalidParametersError('Invalid values specified');
+    }
+    const success = town.addPollingArea(requestBody);
     if (!success) {
       throw new InvalidParametersError('Invalid values specified');
     }

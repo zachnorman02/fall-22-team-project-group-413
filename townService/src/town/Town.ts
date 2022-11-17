@@ -14,10 +14,12 @@ import {
   ServerToClientEvents,
   SocketData,
   ViewingArea as ViewingAreaModel,
+  PollingArea as PollingAreaModel,
 } from '../types/CoveyTownSocket';
 import ConversationArea from './ConversationArea';
 import InteractableArea from './InteractableArea';
 import ViewingArea from './ViewingArea';
+import PollingArea from './PollingArea';
 
 /**
  * The Town class implements the logic for each town: managing the various events that
@@ -278,6 +280,35 @@ export default class Town {
       return false;
     }
     area.updateModel(viewingArea);
+    area.addPlayersWithinBounds(this._players);
+    this._broadcastEmitter.emit('interactableUpdate', area.toModel());
+    return true;
+  }
+
+  /**
+   * Creates a new polling area in this town if there is not currently an active
+   * polling area with the same ID. The polling area ID must match the name of a
+   * polling area that exists in this town's map.
+   *
+   * If successful creating the polling area, this method:
+   *    Adds any players who are in the region defined by the polling area to it
+   *    Notifies all players in the town that the polling area has been updated by
+   *      emitting an interactableUpdate event
+   *
+   * @param pollingArea Information describing the polling area to create.
+   *
+   * @returns True if the polling area was created or false if there is no known
+   * polling area with the specified ID or if there is already an active polling area
+   * with the specified ID
+   */
+  public addPollingArea(pollingArea: PollingAreaModel): boolean {
+    const area = this._interactables.find(
+      eachArea => eachArea.id === pollingArea.id,
+    ) as PollingArea;
+    if (!area || !pollingArea.isActive || area.isActive) {
+      return false;
+    }
+    area.updateModel(pollingArea);
     area.addPlayersWithinBounds(this._players);
     this._broadcastEmitter.emit('interactableUpdate', area.toModel());
     return true;
