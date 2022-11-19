@@ -371,6 +371,7 @@ export default class TownGameScene extends Phaser.Scene {
           down: Phaser.Input.Keyboard.KeyCodes.S,
           left: Phaser.Input.Keyboard.KeyCodes.A,
           right: Phaser.Input.Keyboard.KeyCodes.D,
+          p: Phaser.Input.Keyboard.KeyCodes.P,
         },
         false,
       ) as Phaser.Types.Input.Keyboard.CursorKeys,

@@ -5,13 +5,6 @@ export default class PollingArea extends Interactable {
 
   private _isInteracting = false;
 
-  /* public get defaultVideoURL() {
-    if (!this._defaultVideoURL) {
-      return 'No URL found';
-    }
-    return this._defaultVideoURL;
-  } */
-
   addedToScene() {
     super.addedToScene();
     this.setTintFill();
@@ -47,10 +40,10 @@ export default class PollingArea extends Interactable {
     }
   }
 
-  interact(): void {
+  /* interact(): void {
     this._startPollText?.setVisible(false);
     this._isInteracting = true;
-  }
+  } */
 
   getType(): KnownInteractableTypes {
     return 'pollingArea';
