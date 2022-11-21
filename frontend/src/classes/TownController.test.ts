@@ -2,7 +2,7 @@ import { mock, mockClear, MockProxy } from 'jest-mock-extended';
 import { nanoid } from 'nanoid';
 import { LoginController } from '../contexts/LoginControllerContext';
 import { ViewingArea } from '../generated/client';
-import { PollingArea } from '../generated/client';
+// import { PollingArea } from '../generated/client';
 import {
   EventNames,
   getEventListener,
@@ -18,11 +18,11 @@ import {
   ServerToClientEvents,
   TownJoinResponse,
 } from '../types/CoveyTownSocket';
-import { isConversationArea, isViewingArea, isPollingArea } from '../types/TypeUtils';
+import { isConversationArea, isViewingArea } from '../types/TypeUtils'; // , isPollingArea
 import PlayerController from './PlayerController';
 import TownController, { TownEvents } from './TownController';
 import ViewingAreaController from './ViewingAreaController';
-import BinaryPollManagerController from './BinaryPollManagerController';
+// import BinaryPollManagerController from './BinaryPollManagerController';
 
 /**
  * Mocks the socket-io client constructor such that it will always return the same

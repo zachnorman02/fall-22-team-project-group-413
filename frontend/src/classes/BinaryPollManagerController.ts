@@ -1,5 +1,5 @@
 import EventEmitter from 'events';
-import _ from 'lodash';
+// import _ from 'lodash';
 import { useEffect, useState } from 'react';
 import { PollingArea as PollAreaModel, PollingOptionVotes } from '../types/CoveyTownSocket';
 import TypedEmitter from 'typed-emitter';
