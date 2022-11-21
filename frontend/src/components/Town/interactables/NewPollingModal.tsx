@@ -102,7 +102,6 @@ export default function NewPollingModal(): JSX.Element {
                 onChange={e => setTitle(e.target.value)}
               />
               <Input
-                type='number'
                 pattern='[0-9]*'
                 id='duration'
                 placeholder='Enter a duration for your poll to accept votes'
