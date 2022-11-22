@@ -16,11 +16,13 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { useInteractable } from '../../../classes/TownController';
 import { PollingArea } from '../../../generated/client/models/PollingArea';
 import useTownController from '../../../hooks/useTownController';
+import { isPollingArea } from '../../../types/TypeUtils';
+import { PollingOptionVotes } from '../../../types/CoveyTownSocket';
 
 export default function NewPollingModal(): JSX.Element {
   const coveyTownController = useTownController();
   const newPoll = useInteractable('pollingArea');
-  const [title, setTitle] = useState<string>('');
+  const [title, setTitle] = useState<string | undefined>('');
   const [duration, setDuration] = useState<number>(0);
 
   const isOpen = newPoll !== undefined;
@@ -42,11 +44,14 @@ export default function NewPollingModal(): JSX.Element {
   const toast = useToast();
 
   const createPoll = useCallback(async () => {
-    if (title && newPoll) {
+    if (title && duration && newPoll) {
       const pollToCreate: PollingArea = {
         id: newPoll.name,
         isActive: true,
         elapsedTimeSec: 0,
+        duration: duration,
+        title: title,
+        votes: [], //pollingoptionvotes
       };
       try {
         await coveyTownController.createPollingArea(pollToCreate);
@@ -73,7 +78,7 @@ export default function NewPollingModal(): JSX.Element {
         }
       }
     }
-  }, [title, setTitle, coveyTownController, newPoll, closeModal, toast]);
+  }, [title, newPoll, duration, coveyTownController, toast, closeModal]);
 
   return (
     <Modal
@@ -102,7 +107,8 @@ export default function NewPollingModal(): JSX.Element {
                 onChange={e => setTitle(e.target.value)}
               />
               <Input
-                pattern='[0-9]*'
+                //pattern='[0-9]*'
+                type='number'
                 id='duration'
                 placeholder='Enter a duration for your poll to accept votes'
                 name='duration'

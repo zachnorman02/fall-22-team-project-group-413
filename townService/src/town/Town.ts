@@ -305,6 +305,8 @@ export default class Town {
     const area = this._interactables.find(
       eachArea => eachArea.id === pollingArea.id,
     ) as PollingArea;
+    // console.log(pollingArea);
+    // console.log(area);
     if (!area || !pollingArea.isActive || area.isActive) {
       return false;
     }
@@ -383,7 +385,14 @@ export default class Town {
         ConversationArea.fromMapObject(eachConvAreaObj, this._broadcastEmitter),
       );
 
-    this._interactables = this._interactables.concat(viewingAreas).concat(conversationAreas);
+    const pollingAreas = objectLayer.objects
+      .filter(eachObject => eachObject.type === 'PollingArea')
+      .map(eachPollAreaObj => PollingArea.fromMapObject(eachPollAreaObj, this._broadcastEmitter));
+
+    this._interactables = this._interactables
+      .concat(viewingAreas)
+      .concat(conversationAreas)
+      .concat(pollingAreas);
     this._validateInteractables();
   }
 

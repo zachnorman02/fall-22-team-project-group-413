@@ -17,6 +17,7 @@ import {
   TownSettingsUpdate,
   ViewingArea as ViewingAreaModel,
   PollingArea as PollingAreaModel,
+  PollingOptionVotes,
 } from '../types/CoveyTownSocket';
 import { isConversationArea, isPollingArea, isViewingArea } from '../types/TypeUtils';
 import BinaryPollManagerController from './BinaryPollManagerController';
@@ -537,7 +538,14 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
    *
    * @param newArea
    */
-  async createPollingArea(newArea: PollingAreaModel) {
+  async createPollingArea(newArea: {
+    id: string;
+    isActive: boolean;
+    elapsedTimeSec: number;
+    title?: string;
+    votes?: PollingOptionVotes[];
+    duration?: number;
+  }) {
     await this._townsService.createPollingArea(this.townID, this.sessionToken, newArea);
   }
 

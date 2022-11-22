@@ -17,7 +17,7 @@
     "@types/d3-timer": "^3.0.0",
     "@types/enzyme": "^3.10.12",
     "@types/fscreen": "^1.0.1",
-    "@types/jest": "^28.1.5",
+    "@types/jest": "^28.1.8",
     "@types/lodash.throttle": "^4.1.7",
     "@types/node": "^18.0.3",
     "@types/react": "^16.8.0",
