@@ -16,8 +16,8 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { useInteractable } from '../../../classes/TownController';
 import { PollingArea } from '../../../generated/client/models/PollingArea';
 import useTownController from '../../../hooks/useTownController';
-import { isPollingArea } from '../../../types/TypeUtils';
-import { PollingOptionVotes } from '../../../types/CoveyTownSocket';
+// import { isPollingArea } from '../../../types/TypeUtils';
+// import { PollingOptionVotes } from '../../../types/CoveyTownSocket';
 
 export default function NewPollingModal(): JSX.Element {
   const coveyTownController = useTownController();

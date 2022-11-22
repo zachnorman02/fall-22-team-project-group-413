@@ -16,7 +16,7 @@ import {
   PlayerLocation,
   TownSettingsUpdate,
   ViewingArea as ViewingAreaModel,
-  PollingArea as PollingAreaModel,
+  // PollingArea as PollingAreaModel,
   PollingOptionVotes,
 } from '../types/CoveyTownSocket';
 import { isConversationArea, isPollingArea, isViewingArea } from '../types/TypeUtils';
