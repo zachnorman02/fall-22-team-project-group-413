@@ -826,6 +826,48 @@ describe('Town', () => {
       });
     });
   });
+  describe('addPollingArea', () => {
+    beforeEach(async () => {
+      town.initializeFromMap(testingMaps.twoConvTwoViewingTwoPolling);
+    });
+    it('Should return false if no area exists with that ID', () => {
+      expect(town.addPollingArea({ id: nanoid(), isActive: true, elapsedTimeSec: 0 })).toBe(false);
+    });
+    it('Should return false if the new area is not active', () => {
+      expect(town.addPollingArea({ id: nanoid(), isActive: false, elapsedTimeSec: 0 })).toBe(false);
+    });
+    it('Should return false if the area is already active', () => {
+      expect(town.addPollingArea({ id: 'Name6', isActive: true, elapsedTimeSec: 30 })).toBe(true);
+      expect(town.addPollingArea({ id: 'Name6', isActive: true, elapsedTimeSec: 50 })).toBe(false);
+    });
+    describe('When successful', () => {
+      const newModel = {
+        id: 'Name5',
+        isActive: true,
+        elapsedTimeSec: 100,
+        duration: 200,
+        title: nanoid(),
+      };
+      beforeEach(() => {
+        playerTestData.moveTo(1100, 1300);
+        expect(town.addPollingArea(newModel)).toBe(true);
+      });
+
+      it('Should update the local model for that area', () => {
+        const pollingArea = town.getInteractable('Name5');
+        expect(pollingArea.toModel()).toEqual(newModel);
+      });
+
+      it('Should emit an interactableUpdate message', () => {
+        const lastEmittedUpdate = getLastEmittedEvent(townEmitter, 'interactableUpdate');
+        expect(lastEmittedUpdate).toEqual(newModel);
+      });
+      it('Should include any players in that area as occupants', () => {
+        const pollingArea = town.getInteractable('Name5');
+        expect(pollingArea.occupantsByID).toEqual([player.id]);
+      });
+    });
+  });
 
   describe('disconnectAllPlayers', () => {
     beforeEach(() => {
