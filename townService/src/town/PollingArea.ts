@@ -1,8 +1,8 @@
 import { ITiledMapObject } from '@jonbell/tiled-map-type-guard';
+import { Result } from 'react-leaf-polls';
 import Player from '../lib/Player';
 import {
   BoundingBox,
-  PollingOptionVotes,
   PollingArea as PollingAreaModel,
   TownEmitter,
 } from '../types/CoveyTownSocket';
@@ -18,7 +18,7 @@ export default class PollingArea extends InteractableArea {
 
   private _elapsedTimeSec: number;
 
-  private _votes?: PollingOptionVotes[];
+  private _votes?: Result[];
 
   public get title() {
     return this._title;

@@ -1,3 +1,5 @@
+import { Result } from "react-leaf-polls";
+
 export type TownJoinResponse = {
   /** Unique ID that represents this player * */
   userID: string;
@@ -15,21 +17,21 @@ export type TownJoinResponse = {
   isPubliclyListed: boolean;
   /** Current state of interactables in this town */
   interactables: Interactable[];
-}
+};
 
 export type Interactable = ViewingArea | ConversationArea | PollingArea;
 
 export type TownSettingsUpdate = {
   friendlyName?: string;
   isPubliclyListed?: boolean;
-}
+};
 
 export type Direction = 'front' | 'back' | 'left' | 'right';
 export interface Player {
   id: string;
   userName: string;
   location: PlayerLocation;
-};
+}
 
 export type XY = { x: number, y: number };
 
@@ -42,7 +44,7 @@ export interface PlayerLocation {
   rotation: Direction;
   moving: boolean;
   interactableID?: string;
-};
+}
 export type ChatMessage = {
   author: string;
   sid: string;
@@ -54,13 +56,13 @@ export interface ConversationArea {
   id: string;
   topic?: string;
   occupantsByID: string[];
-};
+}
 export interface BoundingBox {
   x: number;
   y: number;
   width: number;
   height: number;
-};
+}
 
 export interface ViewingArea {
   id: string;
@@ -87,12 +89,12 @@ export interface ClientToServerEvents {
 }
 
 export type PollingOption = string;
-export type PollingOptionVotes = { option: PollingOption, votes: number}
+// export type PollingOptionVotes = { option: PollingOption; votes: number };
 export interface PollingArea {
-  id: string
+  id: string;
   title?: string;
   isActive: boolean;
   duration?: number;
-  elapsedTimeSec: number
-  votes?: PollingOptionVotes[];
+  elapsedTimeSec: number;
+  votes?: Result[];
 }

@@ -17,13 +17,13 @@ import {
   TownSettingsUpdate,
   ViewingArea as ViewingAreaModel,
   // PollingArea as PollingAreaModel,
-  PollingOptionVotes,
 } from '../types/CoveyTownSocket';
 import { isConversationArea, isPollingArea, isViewingArea } from '../types/TypeUtils';
 import BinaryPollManagerController from './BinaryPollManagerController';
 import ConversationAreaController from './ConversationAreaController';
 import PlayerController from './PlayerController';
 import ViewingAreaController from './ViewingAreaController';
+import { Result } from 'react-leaf-polls';
 
 const CALCULATE_NEARBY_PLAYERS_DELAY = 300;
 
@@ -543,7 +543,7 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
     isActive: boolean;
     elapsedTimeSec: number;
     title?: string;
-    votes?: PollingOptionVotes[];
+    votes?: Result[];
     duration?: number;
   }) {
     await this._townsService.createPollingArea(this.townID, this.sessionToken, newArea);
