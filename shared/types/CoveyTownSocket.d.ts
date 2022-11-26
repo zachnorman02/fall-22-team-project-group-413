@@ -87,7 +87,7 @@ export interface ClientToServerEvents {
 }
 
 export type PollingOption = string;
-export type PollingOptionVotes = { id: number, option: PollingOption, votes: number}
+export type PollingOptionVotes = { option: PollingOption, votes: number}
 export interface PollingArea {
   id: string
   title?: string;
