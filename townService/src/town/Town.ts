@@ -4,7 +4,7 @@ import { BroadcastOperator } from 'socket.io';
 import IVideoClient from '../lib/IVideoClient';
 import Player from '../lib/Player';
 import TwilioVideo from '../lib/TwilioVideo';
-import { isViewingArea } from '../TestUtils';
+import { isPollingArea, isViewingArea } from '../TestUtils';
 import {
   ChatMessage,
   ConversationArea as ConversationAreaModel,
@@ -157,6 +157,15 @@ export default class Town {
           (viewingArea as ViewingArea).updateModel(update);
         }
       }
+      if (isPollingArea(update)) {
+        newPlayer.townEmitter.emit('interactableUpdate', update);
+        const pollingArea = this._interactables.find(
+          eachInteractable => eachInteractable.id === update.id,
+        );
+        if (pollingArea) {
+          (pollingArea as PollingArea).updateModel(update);
+        }
+      }
     });
     return newPlayer;
   }
@@ -305,14 +314,14 @@ export default class Town {
     const area = this._interactables.find(
       eachArea => eachArea.id === pollingArea.id,
     ) as PollingArea;
-    // console.log(pollingArea);
-    // console.log(area);
     if (!area || !pollingArea.isActive || area.isActive) {
       return false;
     }
     area.updateModel(pollingArea);
     area.addPlayersWithinBounds(this._players);
     this._broadcastEmitter.emit('interactableUpdate', area.toModel());
+    // console.log(pollingArea);
+    // console.log(area);
     return true;
   }
 

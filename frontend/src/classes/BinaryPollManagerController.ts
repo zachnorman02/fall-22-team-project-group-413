@@ -3,6 +3,8 @@ import EventEmitter from 'events';
 import { useEffect, useState } from 'react';
 import { PollingArea as PollAreaModel, PollingOptionVotes } from '../types/CoveyTownSocket';
 import TypedEmitter from 'typed-emitter';
+import { LeafPoll, Result } from 'react-leaf-polls';
+import TownController from './TownController';
 
 /**
  * The events that the BinaryPollManagerController emits to subscribers. These events
@@ -113,6 +115,37 @@ export default class BinaryPollManagerController extends (EventEmitter as new ()
     this.question = model.title;
   }
 }
+
+// convert PollingOptionVotes into Result array for react-leaf-polls
+export function optionVotesToResult(ctrlr: BinaryPollManagerController): Result[] {
+  const resultArray: Result[] = [];
+  if (ctrlr.results) {
+    for (let i = 0; i < ctrlr.results.length; i++) {
+      const res: Result = {
+        id: ctrlr.results[i].id,
+        text: ctrlr.results[i].option,
+        votes: ctrlr.results[i].votes,
+      };
+      resultArray.push(res);
+    }
+  }
+  return resultArray;
+}
+
+// updating votes
+export function updateVotes(ctrlr: BinaryPollManagerController, res: Result): void {
+  if (ctrlr.results) {
+    for (let i = 0; i < ctrlr.results.length; i++) {
+      if (ctrlr.results[i].id === res.id) {
+        ctrlr.results[i].votes = res.votes;
+      }
+    }
+  }
+}
+
+// set polls handler, pass to modals
+// have isOpen logic here - listener, useEffect
+// set local state boolean will determine whether to display
 
 export function usePollManagerResults(poll: BinaryPollManagerController): PollingOptionVotes[] {
   const [results, setResults] = useState(poll.results);

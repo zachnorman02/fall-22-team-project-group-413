@@ -90,6 +90,11 @@ export default class PollingArea extends InteractableArea {
     this._duration = duration;
     this._elapsedTimeSec = elapsedTimeSec;
     this._votes = votes;
+    console.log(title);
+    console.log(isActive);
+    console.log(duration);
+    console.log(elapsedTimeSec);
+    console.log(votes);
   }
 
   /**

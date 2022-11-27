@@ -16,8 +16,8 @@ import {
   PlayerLocation,
   TownSettingsUpdate,
   ViewingArea as ViewingAreaModel,
-  // PollingArea as PollingAreaModel,
-  PollingOptionVotes,
+  PollingArea as PollingAreaModel,
+  //PollingOptionVotes,
 } from '../types/CoveyTownSocket';
 import { isConversationArea, isPollingArea, isViewingArea } from '../types/TypeUtils';
 import BinaryPollManagerController from './BinaryPollManagerController';
@@ -538,14 +538,16 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
    *
    * @param newArea
    */
-  async createPollingArea(newArea: {
+  async createPollingArea(
+    newArea: PollingAreaModel /*{
     id: string;
     isActive: boolean;
     elapsedTimeSec: number;
     title?: string;
     votes?: PollingOptionVotes[];
     duration?: number;
-  }) {
+  }*/,
+  ) {
     await this._townsService.createPollingArea(this.townID, this.sessionToken, newArea);
   }
 
@@ -759,12 +761,17 @@ export function useViewingAreaController(viewingAreaID: string): ViewingAreaCont
  *
  * @throws Error if there is no polling area controller matching the specifeid ID
  */
-export function useBinaryPollManagerController(pollingAreaID: string): BinaryPollManagerController {
+export function useBinaryPollManagerController(
+  pollingAreaID: string,
+): BinaryPollManagerController | undefined {
   const townController = useTownController();
+
+  console.log(townController.pollingAreas, pollingAreaID);
 
   const pollingArea = townController.pollingAreas.find(eachArea => eachArea.id == pollingAreaID);
   if (!pollingArea) {
-    throw new Error(`Requested polling area ${pollingAreaID} does not exist`);
+    // throw new Error(`Requested polling area ${pollingAreaID} does not exist`);
+    return undefined;
   }
   return pollingArea;
 }

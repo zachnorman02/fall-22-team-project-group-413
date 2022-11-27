@@ -13,11 +13,11 @@ import {
   useToast,
 } from '@chakra-ui/react';
 import React, { useCallback, useEffect, useState } from 'react';
-import { useInteractable } from '../../../classes/TownController';
+import { useBinaryPollManagerController, useInteractable } from '../../../classes/TownController';
 import { PollingArea } from '../../../generated/client/models/PollingArea';
 import useTownController from '../../../hooks/useTownController';
-// import { isPollingArea } from '../../../types/TypeUtils';
-// import { PollingOptionVotes } from '../../../types/CoveyTownSocket';
+import { isPollingArea } from '../../../types/TypeUtils';
+import { PollingOptionVotes } from '../../../types/CoveyTownSocket';
 
 export default function NewPollingModal(): JSX.Element {
   const coveyTownController = useTownController();
@@ -38,10 +38,13 @@ export default function NewPollingModal(): JSX.Element {
   const closeModal = useCallback(() => {
     if (newPoll) {
       coveyTownController.interactEnd(newPoll);
+      // close();
     }
-  }, [coveyTownController, newPoll]);
+  }, [coveyTownController, newPoll]); //coveyTownController
 
   const toast = useToast();
+  const pollFillerId = newPoll ? newPoll.id : '';
+  const pollController = useBinaryPollManagerController(pollFillerId);
 
   const createPoll = useCallback(async () => {
     if (title && duration && newPoll) {
@@ -53,8 +56,11 @@ export default function NewPollingModal(): JSX.Element {
         title: title,
         votes: [], //pollingoptionvotes
       };
+      // console.log(createPoll);
       try {
         await coveyTownController.createPollingArea(pollToCreate);
+        console.log(pollController);
+        pollController?.emit('activeChange', true);
         toast({
           title: 'Poll Created!',
           status: 'success',
