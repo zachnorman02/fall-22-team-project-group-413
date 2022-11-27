@@ -1,8 +1,7 @@
 import EventEmitter from 'events';
 // import _ from 'lodash';
 import { useEffect, useState } from 'react';
-import { Result } from 'react-leaf-polls';
-import { PollingArea as PollAreaModel } from '../types/CoveyTownSocket';
+import { PollingArea as PollAreaModel, PollingOptionVotes } from '../types/CoveyTownSocket';
 import TypedEmitter from 'typed-emitter';
 
 /**
@@ -11,7 +10,7 @@ import TypedEmitter from 'typed-emitter';
  */
 export type BinaryPollManagerEvents = {
   titleChange: (titleChange: string | undefined) => void;
-  resultsChange: (newResults: Result[]) => void;
+  resultsChange: (newResults: PollingOptionVotes[]) => void;
   activeChange: (newActive: boolean) => void;
   timeChange: (newTime: number) => void;
   timeLimitChange: (newTimeLimit: number) => void;
@@ -24,7 +23,7 @@ export const NO_SET_DURATION = 50;
 export default class BinaryPollManagerController extends (EventEmitter as new () => TypedEmitter<BinaryPollManagerEvents>) {
   private _isActive: boolean;
 
-  private _results?: Result[];
+  private _results?: PollingOptionVotes[];
 
   private _question?: string;
 
@@ -34,7 +33,7 @@ export default class BinaryPollManagerController extends (EventEmitter as new ()
 
   private _id: string;
 
-  constructor(id: string, prompt?: string, results?: Result[], timeLimit?: number) {
+  constructor(id: string, prompt?: string, results?: PollingOptionVotes[], timeLimit?: number) {
     super();
     this._isActive = true;
     this._results = results;
@@ -56,11 +55,11 @@ export default class BinaryPollManagerController extends (EventEmitter as new ()
     return this._id;
   }
 
-  get results(): Result[] | undefined {
+  get results(): PollingOptionVotes[] | undefined {
     return this._results;
   }
 
-  set results(newResults: Result[] | undefined) {
+  set results(newResults: PollingOptionVotes[] | undefined) {
     this._results = newResults;
   }
 
@@ -115,7 +114,7 @@ export default class BinaryPollManagerController extends (EventEmitter as new ()
   }
 }
 
-export function usePollManagerResults(poll: BinaryPollManagerController): Result[] {
+export function usePollManagerResults(poll: BinaryPollManagerController): PollingOptionVotes[] {
   const [results, setResults] = useState(poll.results);
   useEffect(() => {
     poll.addListener('resultsChange', setResults);
