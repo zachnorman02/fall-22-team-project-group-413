@@ -12,14 +12,16 @@ import { Result } from 'react-leaf-polls'; //LEafPoll
  */
 export type BinaryPollManagerEvents = {
   titleChange: (titleChange: string | undefined) => void;
-  resultsChange: (newResults: PollingOptionVotes[]) => void;
+  resultsChange: (newResults: PollingOptionVotes[] | undefined) => void;
   activeChange: (newActive: boolean) => void;
-  timeChange: (newTime: number) => void;
-  timeLimitChange: (newTimeLimit: number) => void;
+  timeChange: (newTime: number | undefined) => void;
+  timeLimitChange: (newTimeLimit: number | undefined) => void;
+  pollChange: (model: PollAreaModel) => void;
 };
 
 export const NO_TOPIC_STRING = '(No topic)';
 export const NO_RESULTS = [];
+export const NO_TIME = 0;
 export const NO_SET_DURATION = 50;
 
 export default class BinaryPollManagerController extends (EventEmitter as new () => TypedEmitter<BinaryPollManagerEvents>) {
@@ -51,6 +53,7 @@ export default class BinaryPollManagerController extends (EventEmitter as new ()
 
   set active(newActive: boolean) {
     this._isActive = newActive;
+    this.emit('activeChange', newActive);
   }
 
   get id() {
@@ -63,6 +66,7 @@ export default class BinaryPollManagerController extends (EventEmitter as new ()
 
   set results(newResults: PollingOptionVotes[] | undefined) {
     this._results = newResults;
+    this.emit('resultsChange', newResults);
   }
 
   get time(): number | undefined {
@@ -71,6 +75,7 @@ export default class BinaryPollManagerController extends (EventEmitter as new ()
 
   set time(newTime: number | undefined) {
     this._time = newTime;
+    this.emit('timeLimitChange', newTime);
   }
 
   get question() {
@@ -79,6 +84,7 @@ export default class BinaryPollManagerController extends (EventEmitter as new ()
 
   set question(newQuestion: string | undefined) {
     this._question = newQuestion;
+    this.emit('titleChange', newQuestion);
   }
 
   get currentTime(): number {
@@ -87,6 +93,7 @@ export default class BinaryPollManagerController extends (EventEmitter as new ()
 
   set currentTime(newCurrTime: number) {
     this._currTime = newCurrTime;
+    this.emit('timeChange', newCurrTime);
   }
 
   static fromBinaryPollManagerModel(model: PollAreaModel): BinaryPollManagerController {
@@ -113,6 +120,8 @@ export default class BinaryPollManagerController extends (EventEmitter as new ()
     this.currentTime = model.elapsedTimeSec;
     this.time = model.duration;
     this.question = model.title;
+    console.log(model);
+    this.emit('pollChange', model);
   }
 }
 
@@ -177,14 +186,14 @@ export function usePollManagerResults(poll: BinaryPollManagerController): Pollin
 }
 
 export function usePollManagerCurrentTime(poll: BinaryPollManagerController): number {
-  const [time, setTime] = useState(poll.currentTime);
+  const [time, setTime] = useState<number | undefined>(poll.currentTime);
   useEffect(() => {
     poll.addListener('timeChange', setTime);
     return () => {
       poll.removeListener('timeChange', setTime);
     };
   }, [poll]);
-  return time;
+  return time || NO_TIME;
 }
 
 export function usePollManagerCurrentTimeLimit(poll: BinaryPollManagerController): number {

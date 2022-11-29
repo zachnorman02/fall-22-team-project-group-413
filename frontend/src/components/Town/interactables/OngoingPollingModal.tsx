@@ -1,8 +1,7 @@
 import {
   Button,
-  //Container,
+  Container,
   FormControl,
-  //FormLabel,
   Modal,
   ModalBody,
   ModalCloseButton,
@@ -10,26 +9,23 @@ import {
   ModalFooter,
   ModalHeader,
   ModalOverlay,
-  //useToast,
 } from '@chakra-ui/react';
 import React, { useCallback, useEffect, useState } from 'react'; //useRef
-//import ReactPlayer from 'react-player';
 import { useInteractable, useBinaryPollManagerController } from '../../../classes/TownController';
-// import ViewingAreaController from '../../../classes/ViewingAreaController';
 import BinaryPollManagerController, {
   optionVotesToResult,
   updateVotes,
+  usePollManagerQuestion,
 } from '../../../classes/BinaryPollManagerController';
 import useTownController from '../../../hooks/useTownController';
-//import SelectVideoModal from './SelectVideoModal';
-//import ViewingAreaInteractable from './ViewingArea';
 import PollingAreaInteractable from './PollingArea';
-//import NewPollingModal from './NewPollingModal';
 import { LeafPoll, Result } from 'react-leaf-polls';
 import 'react-leaf-polls/dist/index.css';
-//import { PollingOptionVotes } from '../../../types/CoveyTownSocket';
-// import { PollingArea, PollingOptionVotes } from '../../../generated/client';
-//import PollingArea from './PollingArea';
+
+// how to store data - backend synch w frontend
+// emit data to other users (title etc)
+// emit flow - assignment 2 diagram
+// backend has to tell each user to open the modal based on frontend input, frontend listens, then logic for changes is emitted
 
 export function OngoingPollingModal({
   controller,
@@ -38,6 +34,7 @@ export function OngoingPollingModal({
 }): JSX.Element {
   const coveyTownController = useTownController();
   const newPoll = useInteractable('pollingArea');
+  const controlQuestion = usePollManagerQuestion(controller);
   // const [title, setTitle] = useState<string | undefined>('');
   // const [duration, setDuration] = useState('');
 
@@ -67,31 +64,33 @@ export function OngoingPollingModal({
   }
 
   return (
-    <Modal
-      isOpen={controller.active} // controller.active
-      onClose={() => {
-        closeModal();
-        coveyTownController.unPause();
-      }}>
-      <ModalOverlay />
-      <ModalContent>
-        <ModalHeader>{controller.question} </ModalHeader>
-        <ModalCloseButton />
-        <form
-          onSubmit={ev => {
-            ev.preventDefault();
-          }}>
-          <ModalBody pb={6}>
-            <FormControl>
-              <LeafPoll type='binary' results={optionVotesToResult(controller)} onVote={vote} />
-            </FormControl>
-          </ModalBody>
-          <ModalFooter>
-            <Button onClick={closeModal}>Cancel</Button>
-          </ModalFooter>
-        </form>
-      </ModalContent>
-    </Modal>
+    <Container className='participant-wrapper'>
+      <Modal
+        isOpen={controller.active} // controller.active
+        onClose={() => {
+          closeModal();
+          coveyTownController.unPause();
+        }}>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>{controlQuestion} </ModalHeader>
+          <ModalCloseButton />
+          <form
+            onSubmit={ev => {
+              ev.preventDefault();
+            }}>
+            <ModalBody pb={6}>
+              <FormControl>
+                <LeafPoll type='binary' results={optionVotesToResult(controller)} onVote={vote} />
+              </FormControl>
+            </ModalBody>
+            <ModalFooter>
+              <Button onClick={closeModal}>Cancel</Button>
+            </ModalFooter>
+          </form>
+        </ModalContent>
+      </Modal>
+    </Container>
   );
 }
 
@@ -124,6 +123,16 @@ export function PollingArea({
       pollController.removeListener('activeChange', setActive);
     };
   }, [pollController, townController]);
+
+  /*useEffect(() => {
+    const setPollHandler = (poll: PollingArea) => {
+      console.log(poll);
+    };
+    pollController.addListener('pollChange', setPollHandler);
+    return () => {
+      pollController.removeListener('activeChange', setActive);
+    };
+  }, [pollController, townController]);*/
 
   console.log(selectIsOpen);
 

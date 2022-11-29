@@ -38,6 +38,7 @@ export type ConnectionProperties = {
  * by calling the `addListener` method on a TownController
  */
 export type TownEvents = {
+  newPoll: () => void;
   /**
    * An event that indicates that the TownController is now connected to the townService
    * @param providerVideoToken a secret token that can be used to connect to the video service
@@ -471,6 +472,11 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
     this.emit('playerMoved', ourPlayer);
   }
 
+  // poll event
+  public emitNewPoll() {
+    this._socket.emit('newPoll');
+  }
+
   /**
    * Emit a chat message to the townService
    *
@@ -664,7 +670,7 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
 
   /**
    * Emit a polling area update to the townService
-   * @param pollinggArea The Binary Poll Manager Controller that is updated and should be emitted
+   * @param pollingArea The Binary Poll Manager Controller that is updated and should be emitted
    *    with the event
    */
   public emitPollingAreaUpdate(pollingArea: BinaryPollManagerController) {

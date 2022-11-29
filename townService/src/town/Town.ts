@@ -130,6 +130,9 @@ export default class Town {
       this._connectedSockets.delete(socket);
     });
 
+    // newPoll event handling
+    // socket.on('newPoll', () => {}); */
+
     // Set up a listener to forward all chat messages to all clients in the town
     socket.on('chatMessage', (message: ChatMessage) => {
       this._broadcastEmitter.emit('chatMessage', message);

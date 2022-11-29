@@ -25,8 +25,15 @@ export default function NewPollingModal(): JSX.Element {
   const newPoll = useInteractable('pollingArea');
   const [title, setTitle] = useState<string | undefined>('');
   const [duration, setDuration] = useState('');
+  const [open, setOpen] = useState(false);
 
-  const isOpen = newPoll !== undefined;
+  useEffect(() => {
+    if (newPoll) {
+      setOpen(true);
+    }
+  }, [newPoll]);
+
+  // const isOpen = newPoll !== undefined;
 
   useEffect(() => {
     if (newPoll) {
@@ -36,12 +43,11 @@ export default function NewPollingModal(): JSX.Element {
     }
   }, [coveyTownController, newPoll]);
 
-  const closeModal = useCallback(() => {
-    if (newPoll) {
-      coveyTownController.interactEnd(newPoll);
-      // close();
-    }
-  }, [coveyTownController, newPoll]); //coveyTownController
+  const closeModal = () => {
+    setOpen(false);
+  }; //coveyTownController
+  // coveyTownController.interactEnd(newPoll);
+  // close();
 
   const toast = useToast();
   const pollFillerId = newPoll ? newPoll.id : '';
@@ -62,6 +68,9 @@ export default function NewPollingModal(): JSX.Element {
         await coveyTownController.createPollingArea(pollToCreate);
         console.log(pollController);
         pollController?.emit('activeChange', true);
+        pollController?.updateFrom(pollToCreate);
+        closeModal();
+        // coveyTownController.emitNewPoll();
         toast({
           title: 'Poll Created!',
           status: 'success',
@@ -69,7 +78,7 @@ export default function NewPollingModal(): JSX.Element {
         setTitle('');
         coveyTownController.unPause();
         // closeModal();
-        <OngoingPollingModal />;
+        // <OngoingPollingModal />;
       } catch (err) {
         if (err instanceof Error) {
           toast({
@@ -90,7 +99,7 @@ export default function NewPollingModal(): JSX.Element {
 
   return (
     <Modal
-      isOpen={isOpen}
+      isOpen={open}
       onClose={() => {
         closeModal();
         coveyTownController.unPause();
