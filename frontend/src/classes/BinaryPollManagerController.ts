@@ -3,8 +3,8 @@ import EventEmitter from 'events';
 import { useEffect, useState } from 'react';
 import { PollingArea as PollAreaModel, PollingOptionVotes } from '../types/CoveyTownSocket';
 import TypedEmitter from 'typed-emitter';
-import { LeafPoll, Result } from 'react-leaf-polls';
-import TownController from './TownController';
+import { Result } from 'react-leaf-polls'; //LEafPoll
+//import TownController from './TownController';
 
 /**
  * The events that the BinaryPollManagerController emits to subscribers. These events
@@ -116,9 +116,22 @@ export default class BinaryPollManagerController extends (EventEmitter as new ()
   }
 }
 
+// look for right poll
+// get right controller for question, return number of votes
+export function findPollOption(question: string, controller: BinaryPollManagerController): number {
+  if (controller.results) {
+    for (let i = 0; i < controller.results.length; i++) {
+      if (controller.results[i].option === question) {
+        return controller.results[i].votes;
+      }
+    }
+  }
+  return 0;
+}
+
 // convert PollingOptionVotes into Result array for react-leaf-polls
 export function optionVotesToResult(ctrlr: BinaryPollManagerController): Result[] {
-  const resultArray: Result[] = [];
+  /*const resultArray: Result[] = [];
   if (ctrlr.results) {
     for (let i = 0; i < ctrlr.results.length; i++) {
       const res: Result = {
@@ -129,7 +142,12 @@ export function optionVotesToResult(ctrlr: BinaryPollManagerController): Result[
       resultArray.push(res);
     }
   }
-  return resultArray;
+  return resultArray;*/
+  const yesResult: Result = { id: 0, text: 'Yes', votes: findPollOption('Yes', ctrlr) };
+  const noResult = { id: 1, text: 'No', votes: findPollOption('No', ctrlr) };
+  const resArray: Result[] = [];
+  resArray.push(yesResult, noResult);
+  return resArray;
 }
 
 // updating votes
