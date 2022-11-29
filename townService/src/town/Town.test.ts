@@ -342,6 +342,148 @@ const testingMaps: TestMapDict = {
       },
     ],
   },
+  twoConvTwoViewingTwoPolling: {
+    tiledversion: '1.9.0',
+    tileheight: 32,
+    tilesets: [],
+    tilewidth: 32,
+    type: 'map',
+    layers: [
+      {
+        id: 4,
+        name: 'Objects',
+        objects: [
+          {
+            type: 'ConversationArea',
+            height: 237,
+            id: 39,
+            name: 'Name1',
+            rotation: 0,
+            visible: true,
+            width: 326,
+            x: 40,
+            y: 120,
+          },
+          {
+            type: 'ConversationArea',
+            height: 266,
+            id: 43,
+            name: 'Name2',
+            rotation: 0,
+            visible: true,
+            width: 467,
+            x: 612,
+            y: 120,
+          },
+          {
+            type: 'ViewingArea',
+            height: 237,
+            id: 54,
+            name: 'Name3',
+            properties: [
+              {
+                name: 'video',
+                type: 'string',
+                value: 'someURL',
+              },
+            ],
+            rotation: 0,
+            visible: true,
+            width: 326,
+            x: 155,
+            y: 566,
+          },
+          {
+            type: 'ViewingArea',
+            height: 237,
+            id: 55,
+            name: 'Name4',
+            properties: [
+              {
+                name: 'video',
+                type: 'string',
+                value: 'someURL',
+              },
+            ],
+            rotation: 0,
+            visible: true,
+            width: 326,
+            x: 600,
+            y: 1200,
+          },
+          {
+            type: 'PollingArea',
+            height: 237,
+            id: 64,
+            name: 'Name5',
+            rotation: 0,
+            visible: true,
+            width: 326,
+            x: 1000,
+            y: 1200,
+          },
+          {
+            type: 'PollingArea',
+            height: 237,
+            id: 65,
+            name: 'Name6',
+            rotation: 0,
+            visible: true,
+            width: 326,
+            x: 1400,
+            y: 1200,
+          },
+        ],
+        opacity: 1,
+        type: 'objectgroup',
+        visible: true,
+        x: 0,
+        y: 0,
+      },
+    ],
+  },
+  twoPolling: {
+    tiledversion: '1.9.0',
+    tileheight: 32,
+    tilesets: [],
+    tilewidth: 32,
+    type: 'map',
+    layers: [
+      {
+        id: 4,
+        name: 'Objects',
+        objects: [
+          {
+            type: 'PollingArea',
+            height: 237,
+            id: 64,
+            name: 'Name5',
+            rotation: 0,
+            visible: true,
+            width: 326,
+            x: 1000,
+            y: 1200,
+          },
+          {
+            type: 'PollingArea',
+            height: 237,
+            id: 65,
+            name: 'Name6',
+            rotation: 0,
+            visible: true,
+            width: 326,
+            x: 1400,
+            y: 1200,
+          },
+        ],
+        opacity: 1,
+        type: 'objectgroup',
+        visible: true,
+        x: 0,
+        y: 0,
+      },
+    ],
+  },
 };
 
 describe('Town', () => {
@@ -684,6 +826,48 @@ describe('Town', () => {
       });
     });
   });
+  describe('addPollingArea', () => {
+    beforeEach(async () => {
+      town.initializeFromMap(testingMaps.twoConvTwoViewingTwoPolling);
+    });
+    it('Should return false if no area exists with that ID', () => {
+      expect(town.addPollingArea({ id: nanoid(), isActive: true, elapsedTimeSec: 0 })).toBe(false);
+    });
+    it('Should return false if the new area is not active', () => {
+      expect(town.addPollingArea({ id: nanoid(), isActive: false, elapsedTimeSec: 0 })).toBe(false);
+    });
+    it('Should return false if the area is already active', () => {
+      expect(town.addPollingArea({ id: 'Name6', isActive: true, elapsedTimeSec: 30 })).toBe(true);
+      expect(town.addPollingArea({ id: 'Name6', isActive: true, elapsedTimeSec: 50 })).toBe(false);
+    });
+    describe('When successful', () => {
+      const newModel = {
+        id: 'Name5',
+        isActive: true,
+        elapsedTimeSec: 100,
+        duration: 200,
+        title: nanoid(),
+      };
+      beforeEach(() => {
+        playerTestData.moveTo(1100, 1300);
+        expect(town.addPollingArea(newModel)).toBe(true);
+      });
+
+      it('Should update the local model for that area', () => {
+        const pollingArea = town.getInteractable('Name5');
+        expect(pollingArea.toModel()).toEqual(newModel);
+      });
+
+      it('Should emit an interactableUpdate message', () => {
+        const lastEmittedUpdate = getLastEmittedEvent(townEmitter, 'interactableUpdate');
+        expect(lastEmittedUpdate).toEqual(newModel);
+      });
+      it('Should include any players in that area as occupants', () => {
+        const pollingArea = town.getInteractable('Name5');
+        expect(pollingArea.occupantsByID).toEqual([player.id]);
+      });
+    });
+  });
 
   describe('disconnectAllPlayers', () => {
     beforeEach(() => {
@@ -727,6 +911,16 @@ describe('Town', () => {
       expect(viewingArea1.boundingBox).toEqual({ x: 40, y: 120, height: 237, width: 326 });
       expect(viewingArea2.id).toEqual('Name2');
       expect(viewingArea2.boundingBox).toEqual({ x: 612, y: 120, height: 266, width: 467 });
+      expect(town.interactables.length).toBe(2);
+    });
+    it('Creates a PollingArea instance for each region on the map', async () => {
+      town.initializeFromMap(testingMaps.twoPolling);
+      const pollingArea1 = town.getInteractable('Name5');
+      const pollingArea2 = town.getInteractable('Name6');
+      expect(pollingArea1.id).toEqual('Name5');
+      expect(pollingArea1.boundingBox).toEqual({ x: 1000, y: 1200, height: 237, width: 326 });
+      expect(pollingArea2.id).toEqual('Name6');
+      expect(pollingArea2.boundingBox).toEqual({ x: 1400, y: 1200, height: 237, width: 326 });
       expect(town.interactables.length).toBe(2);
     });
     describe('Updating interactable state in playerMovements', () => {
