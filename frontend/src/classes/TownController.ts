@@ -17,6 +17,7 @@ import {
   TownSettingsUpdate,
   ViewingArea as ViewingAreaModel,
   PollingArea as PollingAreaModel,
+  //PollingOptionVotes,
 } from '../types/CoveyTownSocket';
 import { isConversationArea, isPollingArea, isViewingArea } from '../types/TypeUtils';
 import BinaryPollManagerController from './BinaryPollManagerController';
@@ -37,6 +38,7 @@ export type ConnectionProperties = {
  * by calling the `addListener` method on a TownController
  */
 export type TownEvents = {
+  newPoll: () => void;
   /**
    * An event that indicates that the TownController is now connected to the townService
    * @param providerVideoToken a secret token that can be used to connect to the video service
@@ -470,6 +472,11 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
     this.emit('playerMoved', ourPlayer);
   }
 
+  // poll event
+  public emitNewPoll() {
+    this._socket.emit('newPoll');
+  }
+
   /**
    * Emit a chat message to the townService
    *
@@ -537,7 +544,16 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
    *
    * @param newArea
    */
-  async createPollingArea(newArea: PollingAreaModel) {
+  async createPollingArea(
+    newArea: PollingAreaModel /*{
+    id: string;
+    isActive: boolean;
+    elapsedTimeSec: number;
+    title?: string;
+    votes?: PollingOptionVotes[];
+    duration?: number;
+  }*/,
+  ) {
     await this._townsService.createPollingArea(this.townID, this.sessionToken, newArea);
   }
 
@@ -654,7 +670,7 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
 
   /**
    * Emit a polling area update to the townService
-   * @param pollinggArea The Binary Poll Manager Controller that is updated and should be emitted
+   * @param pollingArea The Binary Poll Manager Controller that is updated and should be emitted
    *    with the event
    */
   public emitPollingAreaUpdate(pollingArea: BinaryPollManagerController) {
@@ -751,12 +767,17 @@ export function useViewingAreaController(viewingAreaID: string): ViewingAreaCont
  *
  * @throws Error if there is no polling area controller matching the specifeid ID
  */
-export function useBinaryPollManagerController(pollingAreaID: string): BinaryPollManagerController {
+export function useBinaryPollManagerController(
+  pollingAreaID: string,
+): BinaryPollManagerController | undefined {
   const townController = useTownController();
+
+  console.log(townController.pollingAreas, pollingAreaID);
 
   const pollingArea = townController.pollingAreas.find(eachArea => eachArea.id == pollingAreaID);
   if (!pollingArea) {
-    throw new Error(`Requested polling area ${pollingAreaID} does not exist`);
+    // throw new Error(`Requested polling area ${pollingAreaID} does not exist`);
+    return undefined;
   }
   return pollingArea;
 }

@@ -13,17 +13,27 @@ import {
   useToast,
 } from '@chakra-ui/react';
 import React, { useCallback, useEffect, useState } from 'react';
-import { useInteractable } from '../../../classes/TownController';
+import { useBinaryPollManagerController, useInteractable } from '../../../classes/TownController';
 import { PollingArea } from '../../../generated/client/models/PollingArea';
 import useTownController from '../../../hooks/useTownController';
+//import { isPollingArea } from '../../../types/TypeUtils';
+//import { PollingOptionVotes } from '../../../types/CoveyTownSocket';
+//import OngoingPollingModal from './OngoingPollingModal';
 
 export default function NewPollingModal(): JSX.Element {
   const coveyTownController = useTownController();
   const newPoll = useInteractable('pollingArea');
-  const [title, setTitle] = useState<string>('');
-  const [duration, setDuration] = useState<number>(0);
+  const [title, setTitle] = useState<string | undefined>('');
+  const [duration, setDuration] = useState('');
+  const [open, setOpen] = useState(false);
 
-  const isOpen = newPoll !== undefined;
+  useEffect(() => {
+    if (newPoll) {
+      setOpen(true);
+    }
+  }, [newPoll]);
+
+  // const isOpen = newPoll !== undefined;
 
   useEffect(() => {
     if (newPoll) {
@@ -33,30 +43,42 @@ export default function NewPollingModal(): JSX.Element {
     }
   }, [coveyTownController, newPoll]);
 
-  const closeModal = useCallback(() => {
-    if (newPoll) {
-      coveyTownController.interactEnd(newPoll);
-    }
-  }, [coveyTownController, newPoll]);
+  const closeModal = () => {
+    setOpen(false);
+  }; //coveyTownController
+  // coveyTownController.interactEnd(newPoll);
+  // close();
 
   const toast = useToast();
+  const pollFillerId = newPoll ? newPoll.id : '';
+  const pollController = useBinaryPollManagerController(pollFillerId);
 
   const createPoll = useCallback(async () => {
-    if (title && newPoll) {
+    if (title && duration && newPoll) {
       const pollToCreate: PollingArea = {
         id: newPoll.name,
         isActive: true,
         elapsedTimeSec: 0,
+        duration: parseInt(duration),
+        title: title,
+        votes: [], //pollingoptionvotes
       };
+      // console.log(createPoll);
       try {
         await coveyTownController.createPollingArea(pollToCreate);
+        console.log(pollController);
+        pollController?.emit('activeChange', true);
+        pollController?.updateFrom(pollToCreate);
+        closeModal();
+        // coveyTownController.emitNewPoll();
         toast({
           title: 'Poll Created!',
           status: 'success',
         });
         setTitle('');
         coveyTownController.unPause();
-        closeModal();
+        // closeModal();
+        // <OngoingPollingModal />;
       } catch (err) {
         if (err instanceof Error) {
           toast({
@@ -73,11 +95,11 @@ export default function NewPollingModal(): JSX.Element {
         }
       }
     }
-  }, [title, setTitle, coveyTownController, newPoll, closeModal, toast]);
+  }, [title, duration, newPoll, coveyTownController, pollController, toast]);
 
   return (
     <Modal
-      isOpen={isOpen}
+      isOpen={open}
       onClose={() => {
         closeModal();
         coveyTownController.unPause();
@@ -90,6 +112,8 @@ export default function NewPollingModal(): JSX.Element {
           onSubmit={ev => {
             ev.preventDefault();
             createPoll();
+            // display ongoing modal
+            // <OngoingPollingModal />;
           }}>
           <ModalBody pb={6}>
             <FormControl>
@@ -102,13 +126,13 @@ export default function NewPollingModal(): JSX.Element {
                 onChange={e => setTitle(e.target.value)}
               />
               <Input
-                type='number'
                 pattern='[0-9]*'
+                type='text'
                 id='duration'
                 placeholder='Enter a duration for your poll to accept votes'
                 name='duration'
                 value={duration}
-                onChange={e => setDuration(e.target.valueAsNumber)}
+                onChange={e => setDuration(e.target.value)}
               />
             </FormControl>
           </ModalBody>

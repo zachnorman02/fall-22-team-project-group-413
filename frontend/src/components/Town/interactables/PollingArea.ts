@@ -14,7 +14,7 @@ export default class PollingArea extends Interactable {
     this._startPollText = this.scene.add.text(
       this.x - this.displayWidth / 2,
       this.y - this.displayHeight / 2,
-      `Press p to create a poll`,
+      `Press the spacebar to create a poll`,
       { color: '#FFFFFF', backgroundColor: '#000000' },
     );
     this._startPollText.setVisible(false);
@@ -40,10 +40,10 @@ export default class PollingArea extends Interactable {
     }
   }
 
-  /* interact(): void {
+  interact(): void {
     this._startPollText?.setVisible(false);
     this._isInteracting = true;
-  } */
+  }
 
   getType(): KnownInteractableTypes {
     return 'pollingArea';

@@ -4,7 +4,7 @@ import { BroadcastOperator } from 'socket.io';
 import IVideoClient from '../lib/IVideoClient';
 import Player from '../lib/Player';
 import TwilioVideo from '../lib/TwilioVideo';
-import { isViewingArea } from '../TestUtils';
+import { isPollingArea, isViewingArea } from '../TestUtils';
 import {
   ChatMessage,
   ConversationArea as ConversationAreaModel,
@@ -130,6 +130,9 @@ export default class Town {
       this._connectedSockets.delete(socket);
     });
 
+    // newPoll event handling
+    // socket.on('newPoll', () => {}); */
+
     // Set up a listener to forward all chat messages to all clients in the town
     socket.on('chatMessage', (message: ChatMessage) => {
       this._broadcastEmitter.emit('chatMessage', message);
@@ -155,6 +158,15 @@ export default class Town {
         );
         if (viewingArea) {
           (viewingArea as ViewingArea).updateModel(update);
+        }
+      }
+      if (isPollingArea(update)) {
+        newPlayer.townEmitter.emit('interactableUpdate', update);
+        const pollingArea = this._interactables.find(
+          eachInteractable => eachInteractable.id === update.id,
+        );
+        if (pollingArea) {
+          (pollingArea as PollingArea).updateModel(update);
         }
       }
     });
@@ -311,6 +323,8 @@ export default class Town {
     area.updateModel(pollingArea);
     area.addPlayersWithinBounds(this._players);
     this._broadcastEmitter.emit('interactableUpdate', area.toModel());
+    // console.log(pollingArea);
+    // console.log(area);
     return true;
   }
 
@@ -383,7 +397,14 @@ export default class Town {
         ConversationArea.fromMapObject(eachConvAreaObj, this._broadcastEmitter),
       );
 
-    this._interactables = this._interactables.concat(viewingAreas).concat(conversationAreas);
+    const pollingAreas = objectLayer.objects
+      .filter(eachObject => eachObject.type === 'PollingArea')
+      .map(eachPollAreaObj => PollingArea.fromMapObject(eachPollAreaObj, this._broadcastEmitter));
+
+    this._interactables = this._interactables
+      .concat(viewingAreas)
+      .concat(conversationAreas)
+      .concat(pollingAreas);
     this._validateInteractables();
   }
 
