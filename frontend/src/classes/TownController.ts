@@ -772,7 +772,7 @@ export function useBinaryPollManagerController(
 ): BinaryPollManagerController | undefined {
   const townController = useTownController();
 
-  console.log(townController.pollingAreas, pollingAreaID);
+  //console.log(townController.pollingAreas, pollingAreaID);
 
   const pollingArea = townController.pollingAreas.find(eachArea => eachArea.id == pollingAreaID);
   if (!pollingArea) {

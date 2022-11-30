@@ -66,7 +66,7 @@ export default function NewPollingModal(): JSX.Element {
       // console.log(createPoll);
       try {
         await coveyTownController.createPollingArea(pollToCreate);
-        console.log(pollController);
+        //console.log(pollController);
         pollController?.emit('activeChange', true);
         pollController?.updateFrom(pollToCreate);
         closeModal();

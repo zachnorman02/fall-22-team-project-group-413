@@ -134,7 +134,7 @@ export function PollingArea({
     };
   }, [pollController, townController]);*/
 
-  console.log(selectIsOpen);
+  //console.log(selectIsOpen);
 
   /*if (!selectIsOpen) {
     return <NewPollingModal />;

@@ -120,7 +120,7 @@ export default class BinaryPollManagerController extends (EventEmitter as new ()
     this.currentTime = model.elapsedTimeSec;
     this.time = model.duration;
     this.question = model.title;
-    console.log(model);
+    //console.log(model);
     this.emit('pollChange', model);
   }
 }
