@@ -49,3 +49,7 @@ The frontend will automatically re-compile and reload in your browser if you cha
 ## Netlify Deployment
 
 The Netlify-deployed application can be accessed at https://polling-area-413.netlify.app
+
+## Interaction with our Feature
+
+Interaction with a Polling Area is similar to interacting with a Conversation or Viewing Area. Similar to how the spacebar changes the topic in a Conversation Area or the video in a Viewing Area, if the user is inside a Polling Area, they can press the spacebar to create a poll. On the Covey town map, the Polling Area should be in the room through the doors to the left from where a new user is spawned, in a translucent box within the gated area with a table in each of its 4 corners (shown in the images below). If a poll is not currently running, a dialog will appear prompting the player to press the spacebar. Upon pressing the key a window with options to set the title of the poll and length of time voting should be open for appears on the screen, and a popup message at the bottom of the screen indicates if the poll was created successfully. If it was successful, another window with the question and ‘yes’ and ‘no’ buttons replaces the poll creation window, and the player can select a vote (which is counted in a votes array that can be found in the UI’s React developer tools window if desired). If another player enters when a poll is already running, they will encounter an error if they try to create another one concurrently, meaning only one poll can be active in a Polling Area at a time.
