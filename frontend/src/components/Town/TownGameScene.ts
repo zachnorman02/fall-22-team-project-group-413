@@ -5,6 +5,7 @@ import { PlayerLocation } from '../../types/CoveyTownSocket';
 import { Callback } from '../VideoCall/VideoFrontend/types';
 import Interactable from './Interactable';
 import ConversationArea from './interactables/ConversationArea';
+import PollingArea from './interactables/PollingArea';
 import Transporter from './interactables/Transporter';
 import ViewingArea from './interactables/ViewingArea';
 
@@ -17,6 +18,8 @@ function interactableTypeForObjectType(type: string): any {
     return Transporter;
   } else if (type == 'ViewingArea') {
     return ViewingArea;
+  } else if (type === 'PollingArea') {
+    return PollingArea;
   } else {
     throw new Error(`Unknown object type: ${type}`);
   }
@@ -368,6 +371,7 @@ export default class TownGameScene extends Phaser.Scene {
           down: Phaser.Input.Keyboard.KeyCodes.S,
           left: Phaser.Input.Keyboard.KeyCodes.A,
           right: Phaser.Input.Keyboard.KeyCodes.D,
+          // p: Phaser.Input.Keyboard.KeyCodes.P,
         },
         false,
       ) as Phaser.Types.Input.Keyboard.CursorKeys,

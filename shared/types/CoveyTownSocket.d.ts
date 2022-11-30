@@ -78,16 +78,18 @@ export interface ServerToClientEvents {
   townClosing: () => void;
   chatMessage: (message: ChatMessage) => void;
   interactableUpdate: (interactable: Interactable) => void;
+  newPoll: () => void;
 }
 
 export interface ClientToServerEvents {
   chatMessage: (message: ChatMessage) => void;
   playerMovement: (movementData: PlayerLocation) => void;
   interactableUpdate: (update: Interactable) => void;
+  newPoll: () => void;
 }
 
 export type PollingOption = string;
-export type PollingOptionVotes = { option: PollingOption, votes: number}
+export type PollingOptionVotes = { id: number, option: PollingOption, votes: number, percentage?: number}
 export interface PollingArea {
   id: string
   title?: string;

@@ -4,7 +4,7 @@ import { BroadcastOperator } from 'socket.io';
 import IVideoClient from '../lib/IVideoClient';
 import Player from '../lib/Player';
 import TwilioVideo from '../lib/TwilioVideo';
-import { isViewingArea } from '../TestUtils';
+import { isPollingArea, isViewingArea } from '../TestUtils';
 import {
   ChatMessage,
   ConversationArea as ConversationAreaModel,
@@ -14,10 +14,12 @@ import {
   ServerToClientEvents,
   SocketData,
   ViewingArea as ViewingAreaModel,
+  PollingArea as PollingAreaModel,
 } from '../types/CoveyTownSocket';
 import ConversationArea from './ConversationArea';
 import InteractableArea from './InteractableArea';
 import ViewingArea from './ViewingArea';
+import PollingArea from './PollingArea';
 
 /**
  * The Town class implements the logic for each town: managing the various events that
@@ -128,6 +130,9 @@ export default class Town {
       this._connectedSockets.delete(socket);
     });
 
+    // newPoll event handling
+    // socket.on('newPoll', () => {}); */
+
     // Set up a listener to forward all chat messages to all clients in the town
     socket.on('chatMessage', (message: ChatMessage) => {
       this._broadcastEmitter.emit('chatMessage', message);
@@ -153,6 +158,15 @@ export default class Town {
         );
         if (viewingArea) {
           (viewingArea as ViewingArea).updateModel(update);
+        }
+      }
+      if (isPollingArea(update)) {
+        newPlayer.townEmitter.emit('interactableUpdate', update);
+        const pollingArea = this._interactables.find(
+          eachInteractable => eachInteractable.id === update.id,
+        );
+        if (pollingArea) {
+          (pollingArea as PollingArea).updateModel(update);
         }
       }
     });
@@ -284,6 +298,37 @@ export default class Town {
   }
 
   /**
+   * Creates a new polling area in this town if there is not currently an active
+   * polling area with the same ID. The polling area ID must match the name of a
+   * polling area that exists in this town's map.
+   *
+   * If successful creating the polling area, this method:
+   *    Adds any players who are in the region defined by the polling area to it
+   *    Notifies all players in the town that the polling area has been updated by
+   *      emitting an interactableUpdate event
+   *
+   * @param pollingArea Information describing the polling area to create.
+   *
+   * @returns True if the polling area was created or false if there is no known
+   * polling area with the specified ID or if there is already an active polling area
+   * with the specified ID
+   */
+  public addPollingArea(pollingArea: PollingAreaModel): boolean {
+    const area = this._interactables.find(
+      eachArea => eachArea.id === pollingArea.id,
+    ) as PollingArea;
+    if (!area || !pollingArea.isActive || area.isActive) {
+      return false;
+    }
+    area.updateModel(pollingArea);
+    area.addPlayersWithinBounds(this._players);
+    this._broadcastEmitter.emit('interactableUpdate', area.toModel());
+    // console.log(pollingArea);
+    // console.log(area);
+    return true;
+  }
+
+  /**
    * Fetch a player's session based on the provided session token. Returns undefined if the
    * session token is not valid.
    *
@@ -352,7 +397,14 @@ export default class Town {
         ConversationArea.fromMapObject(eachConvAreaObj, this._broadcastEmitter),
       );
 
-    this._interactables = this._interactables.concat(viewingAreas).concat(conversationAreas);
+    const pollingAreas = objectLayer.objects
+      .filter(eachObject => eachObject.type === 'PollingArea')
+      .map(eachPollAreaObj => PollingArea.fromMapObject(eachPollAreaObj, this._broadcastEmitter));
+
+    this._interactables = this._interactables
+      .concat(viewingAreas)
+      .concat(conversationAreas)
+      .concat(pollingAreas);
     this._validateInteractables();
   }
 

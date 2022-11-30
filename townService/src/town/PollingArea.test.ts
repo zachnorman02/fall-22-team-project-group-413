@@ -90,13 +90,14 @@ describe('PollingArea', () => {
       isActive: false,
       duration: 200,
       elapsedTimeSec: 150,
-      votes: [{ option: 'Yes', votes: 2 }],
+      votes: [{ id: 1, option: 'Yes', votes: 2 }],
     });
     expect(testArea.isActive).toBe(false);
     expect(testArea.id).toBe(id);
     expect(testArea.elapsedTimeSec).toBe(150);
     expect(testArea.title).toBe('test2');
     expect(testArea.votes?.length).toBe(1);
+    expect(testArea.votes?.[0].id).toBe(1);
     expect(testArea.votes?.[0].option).toBe('Yes');
     expect(testArea.votes?.[0].votes).toBe(2);
   });

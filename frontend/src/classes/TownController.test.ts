@@ -2,6 +2,7 @@ import { mock, mockClear, MockProxy } from 'jest-mock-extended';
 import { nanoid } from 'nanoid';
 import { LoginController } from '../contexts/LoginControllerContext';
 import { ViewingArea } from '../generated/client';
+// import { PollingArea } from '../generated/client';
 import {
   EventNames,
   getEventListener,
@@ -17,10 +18,11 @@ import {
   ServerToClientEvents,
   TownJoinResponse,
 } from '../types/CoveyTownSocket';
-import { isConversationArea, isViewingArea } from '../types/TypeUtils';
+import { isConversationArea, isViewingArea } from '../types/TypeUtils'; // , isPollingArea
 import PlayerController from './PlayerController';
 import TownController, { TownEvents } from './TownController';
 import ViewingAreaController from './ViewingAreaController';
+// import BinaryPollManagerController from './BinaryPollManagerController';
 
 /**
  * Mocks the socket-io client constructor such that it will always return the same
@@ -402,6 +404,64 @@ describe('TownController', () => {
           expect(listener).toBeCalledWith(viewingArea.video);
         });
       });
+      // polling start
+      /* describe('Polling Area updates', () => {
+        function pollingAreaOnTown() {
+          return {
+            ...(townJoinResponse.interactables.find(eachInteractable =>
+              isPollingArea(eachInteractable),
+            ) as PollingArea),
+          };
+        }
+        let pollingArea: PollingArea;
+        let pollingAreaController: BinaryPollManagerController;
+        let eventListener: (update: PollingArea) => void;
+        beforeEach(() => {
+          pollingArea = pollingAreaOnTown();
+          const controller = testController.pollingAreas.find(
+            eachArea => eachArea.id === pollingArea.id,
+          );
+          if (!controller) {
+            fail(`Could not find polling area controller for polling area ${pollingArea.id}`);
+          }
+          pollingAreaController = controller;
+          eventListener = getEventListener(mockSocket, 'interactableUpdate');
+        });
+        it('Updates the polling area model', () => {
+          // viewingArea.video = nanoid();
+          pollingArea.title = nanoid();
+          pollingArea.elapsedTimeSec++;
+          pollingArea.isActive = !pollingArea.isActive;
+
+          eventListener(pollingArea);
+
+          expect(pollingAreaController.toBinaryPollManagerModel).toEqual(pollingArea);
+        });
+        it('Emits a activeChange event if isActive changes', () => {
+          const listener = jest.fn();
+          pollingAreaController.addListener('activeChange', listener);
+
+          pollingArea.isActive = !pollingArea.isActive;
+          eventListener(pollingArea);
+          expect(listener).toBeCalledWith(pollingArea.isActive);
+        });
+        it('Emits a timeChange event if the elapsedTimeSec chagnes', () => {
+          const listener = jest.fn();
+          pollingAreaController.addListener('timeChange', listener);
+
+          pollingArea.elapsedTimeSec++;
+          eventListener(pollingArea);
+          expect(listener).toBeCalledWith(pollingArea.elapsedTimeSec);
+        });
+        it('Emits a titleChange event if the title changes', () => {
+          const listener = jest.fn();
+          pollingAreaController.addListener('titleChange', listener);
+
+          pollingArea.title = nanoid();
+          eventListener(pollingArea);
+          expect(listener).toBeCalledWith(pollingArea.title);
+        });
+      }); */
     });
   });
   describe('Processing events that are received over the socket from the townService', () => {
