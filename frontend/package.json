@@ -36,7 +36,7 @@
     "lodash": "^4.17.21",
     "lodash.throttle": "^4.1.1",
     "nanoid": "^4.0.0",
-    "node-sass": "^7.0.3",
+    "node-sass": "^9.0.0",
     "normalize.css": "^8.0.1",
     "phaser": "^3.55.2",
     "react": "^16.8.0",
