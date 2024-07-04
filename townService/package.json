@@ -67,7 +67,7 @@
     "http-status-codes": "^2.2.0",
     "nanoid": "^4.0.0",
     "react-leaf-polls": "^1.1.6",
-    "socket.io": "^4.5.1",
+    "socket.io": "^4.6.2",
     "swagger-ui-express": "^4.4.0",
     "tsoa": "^4.1.0",
     "twilio": "^3.78.0"
