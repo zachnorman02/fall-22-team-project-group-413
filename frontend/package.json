@@ -24,7 +24,7 @@
     "@types/react-dom": "^16.8.0",
     "@types/react-router-dom": "^5.3.3",
     "assert": "^2.0.0",
-    "axios": "^1.6.0",
+    "axios": "^1.7.4",
     "clsx": "^1.2.1",
     "concurrently": "^7.2.2",
     "cross-env": "^7.0.3",
